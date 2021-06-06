@@ -17,5 +17,9 @@ namespace ApplicationCore.Services.UserService
         {
             return unitOfWork.UserRepo.GetByID(id);
         }
+        public ApplicationUser GetUserByName(string name)
+        {
+            return unitOfWork.UserRepo.Get(e=>e.UserName == name).FirstOrDefault();
+        }
     }
 }

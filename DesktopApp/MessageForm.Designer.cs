@@ -31,7 +31,7 @@ namespace DesktopApp
         {
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.listUsers = new System.Windows.Forms.ListBox();
             this.txtMessage = new System.Windows.Forms.TextBox();
             this.btnSend = new System.Windows.Forms.Button();
             this.txtInfo = new System.Windows.Forms.TextBox();
@@ -55,13 +55,14 @@ namespace DesktopApp
             this.label1.TabIndex = 17;
             this.label1.Text = "Online Users";
             // 
-            // listBox1
+            // listUsers
             // 
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(565, 99);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(158, 277);
-            this.listBox1.TabIndex = 16;
+            this.listUsers.FormattingEnabled = true;
+            this.listUsers.Location = new System.Drawing.Point(565, 99);
+            this.listUsers.Name = "listUsers";
+            this.listUsers.Size = new System.Drawing.Size(158, 277);
+            this.listUsers.TabIndex = 16;
+            this.listUsers.SelectedIndexChanged += new System.EventHandler(this.listUsers_SelectedIndexChanged);
             // 
             // txtMessage
             // 
@@ -91,6 +92,7 @@ namespace DesktopApp
             this.txtInfo.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.txtInfo.Size = new System.Drawing.Size(410, 276);
             this.txtInfo.TabIndex = 13;
+            this.txtInfo.TextChanged += new System.EventHandler(this.txtInfo_TextChanged);
             // 
             // MessageForm
             // 
@@ -99,7 +101,7 @@ namespace DesktopApp
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.listBox1);
+            this.Controls.Add(this.listUsers);
             this.Controls.Add(this.txtMessage);
             this.Controls.Add(this.btnSend);
             this.Controls.Add(this.txtInfo);
@@ -114,7 +116,7 @@ namespace DesktopApp
 
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.ListBox listUsers;
         private System.Windows.Forms.TextBox txtMessage;
         private System.Windows.Forms.Button btnSend;
         private System.Windows.Forms.TextBox txtInfo;

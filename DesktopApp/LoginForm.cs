@@ -1,4 +1,6 @@
-﻿using Events.Messages.Common;
+﻿using ApplicationCore.Services.UserService;
+using Events.Messages.Common;
+using Infrastructure.UnitOfWork;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
@@ -15,6 +17,8 @@ namespace DesktopApp
 {
     public partial class LoginForm : Form
     {
+        private UserService userService = new UserService();
+        private MessageForm messageForm = new MessageForm();
         public LoginForm()
         {
             InitializeComponent();
@@ -56,14 +60,19 @@ namespace DesktopApp
         {
             if (!string.IsNullOrEmpty(txtUserName.Text))
             {
-                this.Hide();
+                var user = userService.GetUserByName(txtUserName.Text);
 
-                MessageForm messageForm = new MessageForm();
-
-                messageForm.Show();
-
-          
-                
+                if(user == null)
+                {
+                    MessageBox.Show("User not found");
+                }
+                else
+                {
+                    this.Hide();
+                    messageForm.UserName = user.UserName;
+                    messageForm.Load_users();
+                    messageForm.Show();
+                }
 
             }
         }

@@ -38,6 +38,19 @@ namespace ApplicationCore.Services.MessageService
 
         
         }
-    
+        public IEnumerable<Message> GetMessageThreadForDesktop(string senderUserName, string RecipientUserName)
+        {
+
+            var messages = unitOfWork.MessageRepo.Get(
+               (e => e.RecipientUsername == senderUserName && e.SenderUsername == RecipientUserName ||
+               e.RecipientUsername == RecipientUserName && e.SenderUsername == senderUserName), null,
+               "Sender,Recipient").ToList();
+
+
+
+            return messages;
+
+
+        }
     }
 }

@@ -11,5 +11,7 @@ namespace ApplicationCore.Services.UserService
     {
 
         ApplicationUser GetUserById(string id);
+
+        ApplicationUser GetUserByName(string id);
     }
 }

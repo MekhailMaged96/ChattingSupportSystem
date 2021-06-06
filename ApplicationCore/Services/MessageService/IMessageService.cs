@@ -12,6 +12,7 @@ namespace ApplicationCore.Services.MessageService
 
         Message GetMessage(int id);
         IEnumerable<Message> GetMessageThread(string currentUserId, string RecipientId);
+        IEnumerable<Message> GetMessageThreadForDesktop(string senderUserName, string RecipientUserName);
 
     }
 }
