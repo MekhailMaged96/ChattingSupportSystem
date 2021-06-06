@@ -1,4 +1,6 @@
-﻿using RabbitMQ.Client;
+﻿using Events.Messages.Common;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,9 +23,6 @@ namespace DesktopApp
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new LoginForm());
-
-          
-
         }
     }
 }

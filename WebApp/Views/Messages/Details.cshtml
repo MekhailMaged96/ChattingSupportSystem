@@ -1,0 +1,144 @@
+﻿@model Infrastructure.Data.Context.ApplicationUser
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<div class="row">
+    <div class="col-8">
+        <div class="card message">
+            <div class="card-body" id="noMessage">
+
+                <ul style="overflow: scroll; height: 400px;padding: 0 7px; overflow-x: auto;"
+                    class="chat" id="messagList">
+                    @*<li>
+                        <div>
+                       
+                            <div class="chat-body">
+                                <div class="header">
+                                    <small class="text-muted">
+                                        <span class="fa fa-clock-o"></span>
+
+                                        <span class="text-success" id="messageTime">
+
+                                        </span>
+                                    </small>
+                                </div>
+                                <p id="messageContent"></p>
+                            </div>
+                        </div>
+                    </li>*@
+                </ul>
+
+            </div>
+            <div class="card-footer">
+
+                <div class="input-group mb-3">
+                    <input type="text"
+                           name="messageContent"
+                           class="form-control"
+                           placeholder="Send Private Message" id="message">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" id="btnSave">
+                            Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+ {
+   
+    <script type="text/javascript">
+
+
+     $(document).ready(function () {
+
+        LoadData();
+
+        $("#btnSave").click(function () {
+            //alert("");
+            var mess = {};
+            mess.content = $("#message").val();
+            mess.RecipientId = "@Model.Id"
+      
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("createMessage")',
+                data: '{createMessage: ' + JSON.stringify(mess) + '}',
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function () {
+                   // alert("Data has been added successfully.");
+                    $("#message").val('');
+                    LoadData();
+                },
+                error: function () {
+                    alert("Error while inserting data");
+                }
+            });
+            return false;
+        });
+
+
+
+
+    });
+     function LoadData() {
+
+            var mess = {};
+            mess.content = $("#message").val();
+            mess.RecipientId ="@Model.Id"
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("GetMessageThread")',
+                data: '{messageDTO: ' + JSON.stringify(mess) + '}',
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (messages) {
+                    // alert("Data has been added successfully.");
+
+                    if (messages.length == 0)
+                    {
+
+                        $("#messagList").prepend("<div>No messages yet...say hi by using the message box below </div>");
+                    }
+
+                    var html = '';
+
+                    $.each(messages, function (key, item) {
+                        console.log(item);
+                        html += '<li><div>'
+                        html += '<span class="chat-img float-right text-right">'
+                            + '<p>' + item.SenderUsername + '</p></span>'
+                        html += '<div class="chat-body">'
+                        html += '<div class="header">'
+                        html += '<small class="text-muted">'
+                        html += '<span class="fa fa-clock-o">' + jQuery.timeago(new Date(item.MessageSentString))+ '</span>'
+                        html += '<span class="text-success"></span></small>'
+                        html +=  '</div>'
+                        html += '<p class="text-content">' + item.Content+'</p>'
+                        html+='</div ></div ></li >'
+
+                    });
+                    
+                    $("#messagList").html(html).animate({ scrollTop: $("#messagList")[0].scrollHeight }, 1000);
+                    
+
+
+                },
+                error: function () {
+                    alert("Error while inserting data");
+                }
+            });
+
+        }
+
+    </script>
+
+
+}

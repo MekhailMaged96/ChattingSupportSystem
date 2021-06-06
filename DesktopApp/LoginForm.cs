@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Events.Messages.Common;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,6 +18,38 @@ namespace DesktopApp
         public LoginForm()
         {
             InitializeComponent();
+            /*
+            while (true)
+            {
+                var factory = new ConnectionFactory() { HostName = "localhost" };
+                using (var connection = factory.CreateConnection())
+                using (var channel = connection.CreateModel())
+                {
+
+                    channel.QueueDeclare(queue: EventBusConstants.MessageQueue,
+                                         durable: false,
+                                         exclusive: false,
+                                         autoDelete: false,
+                                         arguments: null);
+
+                    var consumer = new EventingBasicConsumer(channel);
+
+
+
+                    consumer.Received += (model, ea) =>
+                    {
+                        var body = ea.Body.ToArray();
+                        var message = Encoding.UTF8.GetString(body);
+                        MessageBox.Show(message);
+                    };
+
+                    channel.BasicConsume(queue: EventBusConstants.MessageQueue,
+                                            autoAck: true,
+                                            consumer: consumer);
+                }
+            }
+            */
+
         }
 
         private void btnLogin_Click(object sender, EventArgs e)
@@ -26,6 +61,10 @@ namespace DesktopApp
                 MessageForm messageForm = new MessageForm();
 
                 messageForm.Show();
+
+          
+                
+
             }
         }
     }
