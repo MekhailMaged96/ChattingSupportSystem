@@ -27,20 +27,56 @@ namespace DesktopApp
         private UnitOfWork unitOfWork = new UnitOfWork();
         private MessageService messagesService = new MessageService();
         private UserService userService = new UserService();
+        private BackgroundWorker backgroundWorker1;
 
-     
 
         public MessageForm()
         {
             InitializeComponent();
+            backgroundWorker1 = new BackgroundWorker();
+            backgroundWorker1.DoWork += new DoWorkEventHandler(BackgroundWorker1_DoWork);
+            backgroundWorker1.RunWorkerCompleted += new RunWorkerCompletedEventHandler(BackgroundWorker1_RunWorkerCompleted);
 
 
-            if (!backgroundWorkerForMessage.IsBusy)
+        }
+        private void BackgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        {
+            Thread.Sleep(2000);
+
+            var factory = new ConnectionFactory() { HostName = "localhost" };
+            using (var connection = factory.CreateConnection())
+            using (var channel = connection.CreateModel())
             {
-                backgroundWorkerForMessage.RunWorkerAsync();
+
+                if (!string.IsNullOrEmpty(Recipient))
+                {
+
+                    channel.QueueDeclare(queue: Recipient, durable: true, exclusive: false, autoDelete: false, arguments: null);
+                    var consumer = new EventingBasicConsumer(channel);
+                    BasicGetResult result = channel.BasicGet(queue: Recipient, autoAck: true);
+                    if (result != null)
+                    {
+                        var conent = Encoding.UTF8.GetString(result.Body.ToArray());
+                        var message = JsonConvert.DeserializeObject<MessageEvent>(conent);
+
+                        e.Result = message;
+                    }
+                }
             }
+
         }
 
+        private void BackgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+           var obj =  e.Result as MessageEvent;
+           ReceiveMessage(obj);
+
+            if (!backgroundWorker1.IsBusy)
+            {
+                backgroundWorker1.RunWorkerAsync();
+            }
+        
+        }
         private void MessageForm_Load(object sender, EventArgs e)
         {
          
@@ -101,7 +137,11 @@ namespace DesktopApp
             Recipient = listUsers.SelectedItem.ToString();
             txtInfo.Text = string.Empty;
             Load_Messages(Recipient);
-           
+            if (!backgroundWorker1.IsBusy)
+            {
+                backgroundWorker1.RunWorkerAsync();
+            }
+          
         }
 
         private void txtInfo_TextChanged(object sender, EventArgs e)
@@ -109,56 +149,13 @@ namespace DesktopApp
 
         }
 
-        private void backgroundWorkerForMessage_DoWork(object sender, DoWorkEventArgs e)
-        {
-
-            ConsumeRabbitMQ();
-        }
-
-
-
-        private void backgroundWorkerForMessage_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-           
-        }
-
-        private void backgroundWorkerForMessage_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-
-         
-          
-        }
-
-
-
-        private void ConsumeRabbitMQ()
-        {
-            var factory = new ConnectionFactory() { HostName = "localhost" };
-            using (var connection = factory.CreateConnection())
-            using (var channel = connection.CreateModel())
-            {
-
-                if (!string.IsNullOrEmpty(Recipient))
-                {
-
-                    channel.QueueDeclare(queue: Recipient, durable: true, exclusive: false, autoDelete: false, arguments: null);
-                    var consumer = new EventingBasicConsumer(channel);
-                    BasicGetResult result = channel.BasicGet(queue: Recipient, autoAck: true);
-                    if (result != null)
-                    {
-                        var conent = Encoding.UTF8.GetString(result.Body.ToArray());
-                        var message = JsonConvert.DeserializeObject<MessageEvent>(conent);
-                        ReceiveMessage(message);
-                        Thread.Sleep(1000);
-
-                    }
-                }
-            }
-        }
-
         private void ReceiveMessage(MessageEvent message)
         {
-            txtInfo.Text  += message.SenderUsername + ">>" + message.Content + Environment.NewLine;
+            if(message != null)
+            {
+                txtInfo.Text += message.SenderUsername + ">>" + message.Content + Environment.NewLine;
+            }
+          
             //   Load_Messages(Recipient);
         }
     }
