@@ -154,6 +154,8 @@ namespace DesktopApp
             if(message != null)
             {
                 txtInfo.Text += message.SenderUsername + ">>" + message.Content + Environment.NewLine;
+
+                Load_Messages(message.RecipientUsername);
             }
           
             //   Load_Messages(Recipient);
