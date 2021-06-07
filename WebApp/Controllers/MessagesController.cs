@@ -89,20 +89,23 @@ namespace WebApp.Controllers
 
             
           
-            /*
+            
             var messageEvent = new MessageEvent()
             {
                 Id = message.Id,
                 Content = message.Content,
                 RecipientId = message.RecipientId,
                 SenderId = message.SenderId,
-                MessageSent = message.MessageSent
+                MessageSent = message.MessageSent,
+                SenderUsername = message.SenderUsername,
+                RecipientUsername = message.RecipientUsername
             };
+
             var factory = new ConnectionFactory() { HostName = "localhost" };
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
-             
+             /*
                 channel.QueueDeclare(queue: EventBusConstants.MessageQueue,
                                      durable: false,
                                      exclusive: false,
@@ -116,9 +119,21 @@ namespace WebApp.Controllers
                                      routingKey: EventBusConstants.MessageQueue,
                                      basicProperties: null,
                                      body: body);
-          
+
+                */
+
+                channel.ExchangeDeclare(EventBusConstants.MessageQueue, ExchangeType.Direct);
+                channel.QueueDeclare(sender.UserName, true, false, false, null);
+                channel.QueueBind(sender.UserName, EventBusConstants.MessageQueue, sender.UserName, null);
+                var msg = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(messageEvent));
+
+                channel.BasicPublish(EventBusConstants.MessageQueue, sender.UserName, null, msg);
+
             }
-            */
+            
+
+
+
             var messageDto = Mapper.Map<MessageDTO>(message);
             
 

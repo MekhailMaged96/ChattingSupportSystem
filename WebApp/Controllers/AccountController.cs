@@ -170,7 +170,11 @@ namespace WebApp.Controllers
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = model.UserName,Email = model.Email };
+
+         
                 var result = await UserManager.CreateAsync(user);
+
+                
                 if (result.Succeeded)
                 {
                     await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);

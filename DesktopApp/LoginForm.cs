@@ -72,6 +72,7 @@ namespace DesktopApp
                     messageForm.UserName = user.UserName;
                     messageForm.Load_users();
                     messageForm.Show();
+              
                 }
 
             }

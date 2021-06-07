@@ -35,6 +35,7 @@ namespace DesktopApp
             this.txtMessage = new System.Windows.Forms.TextBox();
             this.btnSend = new System.Windows.Forms.Button();
             this.txtInfo = new System.Windows.Forms.TextBox();
+            this.backgroundWorkerForMessage = new System.ComponentModel.BackgroundWorker();
             this.SuspendLayout();
             // 
             // label2
@@ -94,6 +95,14 @@ namespace DesktopApp
             this.txtInfo.TabIndex = 13;
             this.txtInfo.TextChanged += new System.EventHandler(this.txtInfo_TextChanged);
             // 
+            // backgroundWorkerForMessage
+            // 
+            this.backgroundWorkerForMessage.WorkerReportsProgress = true;
+            this.backgroundWorkerForMessage.WorkerSupportsCancellation = true;
+            this.backgroundWorkerForMessage.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorkerForMessage_DoWork);
+            this.backgroundWorkerForMessage.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorkerForMessage_ProgressChanged);
+            this.backgroundWorkerForMessage.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorkerForMessage_RunWorkerCompleted);
+            // 
             // MessageForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -107,6 +116,7 @@ namespace DesktopApp
             this.Controls.Add(this.txtInfo);
             this.Name = "MessageForm";
             this.Text = "MessageForm";
+            this.Load += new System.EventHandler(this.MessageForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -120,5 +130,6 @@ namespace DesktopApp
         private System.Windows.Forms.TextBox txtMessage;
         private System.Windows.Forms.Button btnSend;
         private System.Windows.Forms.TextBox txtInfo;
+        private System.ComponentModel.BackgroundWorker backgroundWorkerForMessage;
     }
 }

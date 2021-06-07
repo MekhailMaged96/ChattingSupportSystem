@@ -64,7 +64,7 @@
             var mess = {};
             mess.content = $("#message").val();
             mess.RecipientId = "@Model.Id"
-      
+
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("createMessage")',
@@ -87,6 +87,12 @@
 
 
     });
+
+    setInterval(function () {
+            LoadData();
+    }, 5000);
+
+
      function LoadData() {
 
             var mess = {};
@@ -125,9 +131,9 @@
                         html+='</div ></div ></li >'
 
                     });
-                    
+
                     $("#messagList").html(html).animate({ scrollTop: $("#messagList")[0].scrollHeight }, 1000);
-                    
+
 
 
                 },

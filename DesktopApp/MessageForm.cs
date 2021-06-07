@@ -1,6 +1,11 @@
 ﻿using ApplicationCore.Services.MessageService;
 using ApplicationCore.Services.UserService;
+using Events.Messages.Common;
+using Events.Messages.Events;
 using Infrastructure.UnitOfWork;
+using Newtonsoft.Json;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,6 +15,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace DesktopApp
 {
@@ -17,38 +23,49 @@ namespace DesktopApp
     {
         public string UserName { get; set; }
         public string Recipient { get; set; }
-
+        public string message;
         private UnitOfWork unitOfWork = new UnitOfWork();
         private MessageService messagesService = new MessageService();
         private UserService userService = new UserService();
 
-
+     
 
         public MessageForm()
         {
             InitializeComponent();
-        
-        }
 
-        public void Load_users()
-        {
-            var users = unitOfWork.UserRepo.Get(e=>e.UserName != UserName).ToList();
 
-            foreach(var user in users)
+            if (!backgroundWorkerForMessage.IsBusy)
             {
-                listUsers.Items.Add(user.UserName);
+                backgroundWorkerForMessage.RunWorkerAsync();
             }
-          
         }
+
+        private void MessageForm_Load(object sender, EventArgs e)
+        {
+         
+        }
+       
         public void Load_Messages(string RecipientUserName)
         {
             var messages = messagesService.GetMessageThreadForDesktop(UserName, RecipientUserName);
             
             foreach(var message in messages)
             {
-                txtInfo.Text += message.SenderUsername + ">> " + message.Content + Environment.NewLine;
+                txtInfo.Text += message.SenderUsername + ">>" + message.Content + Environment.NewLine;
+               // txtInfo.Text += message.MessageSent.ToString() + Environment.NewLine; ;
             }
 
+
+        }
+        public void Load_users()
+        {
+            var users = unitOfWork.UserRepo.Get(e => e.UserName != UserName).ToList();
+
+            foreach (var user in users)
+            {
+                listUsers.Items.Add(user.UserName);
+            }
 
         }
         private void btnSend_Click(object sender, EventArgs e)
@@ -74,7 +91,7 @@ namespace DesktopApp
                 unitOfWork.Save();
 
                 txtInfo.Text += message.SenderUsername + ">>" + message.Content + Environment.NewLine;
-
+              //  txtInfo.Text += message.MessageSent.ToString()+Environment.NewLine; ;
                 txtMessage.Text = string.Empty;
             }
         }
@@ -84,11 +101,65 @@ namespace DesktopApp
             Recipient = listUsers.SelectedItem.ToString();
             txtInfo.Text = string.Empty;
             Load_Messages(Recipient);
+           
         }
 
         private void txtInfo_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void backgroundWorkerForMessage_DoWork(object sender, DoWorkEventArgs e)
+        {
+
+            ConsumeRabbitMQ();
+        }
+
+
+
+        private void backgroundWorkerForMessage_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+           
+        }
+
+        private void backgroundWorkerForMessage_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+
+         
+          
+        }
+
+
+
+        private void ConsumeRabbitMQ()
+        {
+            var factory = new ConnectionFactory() { HostName = "localhost" };
+            using (var connection = factory.CreateConnection())
+            using (var channel = connection.CreateModel())
+            {
+
+                if (!string.IsNullOrEmpty(Recipient))
+                {
+
+                    channel.QueueDeclare(queue: Recipient, durable: true, exclusive: false, autoDelete: false, arguments: null);
+                    var consumer = new EventingBasicConsumer(channel);
+                    BasicGetResult result = channel.BasicGet(queue: Recipient, autoAck: true);
+                    if (result != null)
+                    {
+                        var conent = Encoding.UTF8.GetString(result.Body.ToArray());
+                        var message = JsonConvert.DeserializeObject<MessageEvent>(conent);
+                        ReceiveMessage(message);
+                        Thread.Sleep(1000);
+
+                    }
+                }
+            }
+        }
+
+        private void ReceiveMessage(MessageEvent message)
+        {
+            txtInfo.Text  += message.SenderUsername + ">>" + message.Content + Environment.NewLine;
+            //   Load_Messages(Recipient);
         }
     }
 }
